@@ -1,0 +1,7 @@
+{
+  "db_config": {
+    "POSTGRES_USER": 1,
+    "POSTGRES_PASSWORD": 1,
+    "POSTGRES_DB":1
+  }
+}
