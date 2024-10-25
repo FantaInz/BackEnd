@@ -1,10 +1,6 @@
-from dataclasses import dataclass
-from typing import Any
-import os
 import json
 
-
-class DB_Config:
+class Db_config:
     with open("app/resources/db_config.json",'r') as f:
         __DB_PARAMS=json.load(f)
     DB_CONFIG ="postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}".format(
@@ -13,4 +9,4 @@ class DB_Config:
             DB_HOST=__DB_PARAMS["DB_HOST"],
             DB_NAME=__DB_PARAMS["DB_NAME"],
         )
-db_config = DB_Config()
+db_config = Db_config
