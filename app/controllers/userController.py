@@ -9,6 +9,7 @@ from app.views.user import UserSchema,UserSchemaCreate
 
 router = APIRouter(prefix="/user", tags=["user"])
 
+
 @router.post("/register", response_model=UserSchema)
 async def create_user(user: UserSchemaCreate, db: AsyncSession = Depends(get_db)):
     try:
