@@ -17,7 +17,7 @@ async def lifespan(app: FastAPI):
 server = FastAPI(title="FastAPI server", lifespan=lifespan)
 
 from app.controllers.userController import router as user_router
-from app.controllers.authController import router as auth_router
+from app.controllers.auth.nativeAuth import router as auth_router
 
 server.include_router(user_router, prefix="/api", tags=["user"])
 server.include_router(auth_router, prefix="/api", tags=["auth"])
