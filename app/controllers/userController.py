@@ -13,7 +13,6 @@ router = APIRouter(prefix="/user", tags=["user"])
 @router.post("/register", response_model=UserSchema)
 async def create_user(user: UserSchemaCreate, db: AsyncSession = Depends(get_db)):
     try:
-
         user = await userRepository.create_user(user, db)
     except IntegrityError:
         raise HTTPException(status_code=409,detail="User with this username or email already exists")

@@ -2,10 +2,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.views.user import UserSchemaCreate
 from app.models.user import User
-from app.controllers.auth.nativeAuth import get_password_hash
+from app.controllers.auth.common import get_password_hash
 
 async def create_user(user:UserSchemaCreate,db:AsyncSession):
-    user.password=get_password_hash(user.password)
+    if user.password is not None:
+        user.password=get_password_hash(user.password)
     transaction=User(**user.dict())
     db.add(transaction)
     await db.commit()
