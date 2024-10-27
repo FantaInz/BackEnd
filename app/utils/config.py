@@ -10,3 +10,11 @@ class Db_config:
             DB_NAME=__DB_PARAMS["DB_NAME"],
         )
 db_config = Db_config
+
+class Jwt_config:
+    with open("app/resources/token_config.json",'r') as f:
+        __JWT_PARAMS=json.load(f)
+        SECRET_KEY =__JWT_PARAMS["SECRET_KEY"]
+        ALGORITHM = __JWT_PARAMS["ALGORITHM"]
+        ACCESS_TOKEN_EXPIRE_MINUTES = __JWT_PARAMS["ACCESS_TOKEN_EXPIRE_MINUTES"]
+jwt_config = Jwt_config
