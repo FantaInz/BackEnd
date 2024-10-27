@@ -34,7 +34,7 @@ async def get_current_google_user(token: Annotated[str, Depends(oauth2_scheme)],
 
     except InvalidTokenError:
         raise CREDENTIALS_EXCEPTION
-    user = userRepository.get_user_by_username(username,db)
+    user =await  userRepository.get_user_by_username(username,db)
     if user is None:
         raise CREDENTIALS_EXCEPTION
     return user

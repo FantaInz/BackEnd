@@ -1,12 +1,11 @@
+
 from pydantic import BaseModel
 from fastapi import HTTPException,status
-from app.repositories import userRepository
 from datetime import datetime, timedelta, timezone
 import jwt
-from passlib.context import CryptContext
-
+from app.repositories import userRepository
 from app.utils.config import jwt_config
-
+from app.utils.passwords import verify_password
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -34,10 +33,22 @@ def create_access_token(data: dict, expires_delta: timedelta):
     return encoded_jwt
 
 
-pwd_context = CryptContext(schemes=["sha256_crypt"], deprecated="auto")
+from app.controllers.auth.nativeAuth import get_current_native_user
+from app.controllers.auth.googleAuth import get_current_google_user
+from app.models.user import User
+from typing import Annotated
+from fastapi.params import Depends
+from fastapi import HTTPException,status
 
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
 
-def get_password_hash(password):
-    return pwd_context.hash(password)
+async def get_current_user(google_user: Annotated[User, Depends(get_current_google_user)],
+                           current_user: Annotated[User, Depends(get_current_native_user)]):
+    if not(google_user or current_user):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="login required")
+    if google_user:
+        return google_user
+    return current_user
+
+
+
+

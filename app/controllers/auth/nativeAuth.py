@@ -20,7 +20,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 n_oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
-async def get_current_user(token: Annotated[str, Depends(n_oauth2_scheme)],db: AsyncSession = Depends(get_db)):
+async def get_current_native_user(token: Annotated[str, Depends(n_oauth2_scheme)],db: AsyncSession = Depends(get_db)):
     try:
         payload = jwt.decode(token, jwt_config.SECRET_KEY, algorithms=[jwt_config.ALGORITHM])
         username: str = payload.get("sub")
@@ -29,7 +29,7 @@ async def get_current_user(token: Annotated[str, Depends(n_oauth2_scheme)],db: A
 
     except InvalidTokenError:
         raise CREDENTIALS_EXCEPTION
-    user = userRepository.get_user_by_username(username,db)
+    user = await userRepository.get_user_by_username(username,db)
     if user is None:
         raise CREDENTIALS_EXCEPTION
     return user
@@ -56,7 +56,7 @@ async def login_for_access_token(
 
 @router.get("/me")
 async def read_users_me(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(get_current_native_user)],
 ):
     current_user=await current_user
     return current_user
