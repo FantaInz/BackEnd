@@ -59,7 +59,7 @@ async def login_google():
     }
 
 @router.get("/auth")
-async def auth_google(code: str,db:AsyncSession=Depends(get_db)):
+async def auth_google(code: str,db:AsyncSession=Depends(get_db))->Token:
     token_url = "https://accounts.google.com/o/oauth2/token"
     data = {
         "code": code,

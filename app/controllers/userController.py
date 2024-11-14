@@ -12,10 +12,12 @@ router = APIRouter(prefix="/user", tags=["user"])
 
 @router.post("/register", response_model=UserSchema)
 async def create_user(user: UserSchemaCreate, db: AsyncSession = Depends(get_db)):
+    if user.password is None:
+        raise HTTPException(status_code=400, detail="Incorrect password.")
     try:
         user = await userRepository.create_user(user, db)
     except IntegrityError:
         raise HTTPException(status_code=409,detail="User with this username or email already exists")
     if user.id is None:
         raise HTTPException(status_code=500,detail="couldn't register user")
-    return user
+    return UserSchema(**user.dict())

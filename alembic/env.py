@@ -12,6 +12,8 @@ from alembic import context
 
 
 from app.models import user
+from app.models import team
+from app.models import player
 from app.utils.config import db_config as app_config
 from app.services.database import Base
 

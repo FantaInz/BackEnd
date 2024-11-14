@@ -35,10 +35,11 @@ server.add_middleware(
 from app.controllers.userController import router as user_router
 from app.controllers.auth.nativeAuth import router as auth_router
 from app.controllers.auth.googleAuth import router as google_auth_router
-
+from app.controllers.squadController import router as squad_router
 server.include_router(user_router, prefix="/api", tags=["user"])
 server.include_router(auth_router, prefix="/api", tags=["auth"])
 server.include_router(google_auth_router, prefix="/api", tags=["google"])
+server.include_router(squad_router, prefix="/api", tags=["squad"])
 @server.get("/user")
 async def get_user(user=Depends(get_current_user)):
     return user
