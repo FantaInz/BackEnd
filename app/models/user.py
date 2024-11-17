@@ -1,8 +1,6 @@
-from sqlalchemy import Column, String, select, Integer, ForeignKey
-from sqlalchemy.exc import IntegrityError, NoResultFound
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import Column, String, Integer
 
-from app.services.database import Base
+from app.utils.database import Base
 
 class User(Base):
     __tablename__ = 'users'

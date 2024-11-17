@@ -1,4 +1,4 @@
-from app.services.database import get_db
+from app.utils.database import get_db
 from app.views.user import UserSchemaCreate
 from fastapi import APIRouter,HTTPException
 from fastapi.params import Depends
@@ -25,7 +25,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/api/google/token')
 
 SECRET_KEY = jwt_config.SECRET_KEY
 
-async def get_current_google_user(token: Annotated[str, Depends(oauth2_scheme)],db: AsyncSession = Depends(get_db)):
+def get_current_google_user(token: Annotated[str, Depends(oauth2_scheme)],db: AsyncSession = Depends(get_db)):
     try:
         payload = jwt.decode(token, jwt_config.SECRET_KEY, algorithms=[jwt_config.ALGORITHM])
         username: str = payload.get("sub")
@@ -34,18 +34,18 @@ async def get_current_google_user(token: Annotated[str, Depends(oauth2_scheme)],
 
     except InvalidTokenError:
         raise CREDENTIALS_EXCEPTION
-    user =await  userRepository.get_user_by_username(username,db)
+    user = userRepository.get_user_by_username(username,db)
     if user is None:
         raise CREDENTIALS_EXCEPTION
     return user
 
 
-async def create_user_if_not_exists(userdata,db):
-    user = await userRepository.get_user_by_username(userdata['name'],db)
+def create_user_if_not_exists(userdata,db):
+    user = userRepository.get_user_by_username(userdata['name'],db)
     if user is None:
         try:
             raw_user=UserSchemaCreate(username=userdata["name"],email=userdata["email"],team_id=0)
-            user = await userRepository.create_user(raw_user,db)
+            user = userRepository.create_user(raw_user,db)
         except IntegrityError:
             raise HTTPException(status_code=409,detail="Username or email already exists")
 
@@ -53,13 +53,13 @@ async def create_user_if_not_exists(userdata,db):
 
 router = APIRouter(prefix="/google",tags=["google"])
 @router.get("/login")
-async def login_google():
+def login_google():
     return {
         "url": f"https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={GOOGLE_CLIENT_ID}&redirect_uri={GOOGLE_REDIRECT_URI}&scope=openid%20profile%20email&access_type=offline"
     }
 
 @router.get("/auth")
-async def auth_google(code: str,db:AsyncSession=Depends(get_db))->Token:
+def auth_google(code: str,db:AsyncSession=Depends(get_db))->Token:
     token_url = "https://accounts.google.com/o/oauth2/token"
     data = {
         "code": code,
@@ -71,7 +71,7 @@ async def auth_google(code: str,db:AsyncSession=Depends(get_db))->Token:
     response = requests.post(token_url, data=data)
     google_access_token = response.json().get("access_token")
     user_info = requests.get("https://www.googleapis.com/oauth2/v1/userinfo", headers={"Authorization": f"Bearer {google_access_token}"})
-    user=await create_user_if_not_exists(user_info.json(),db)
+    user=create_user_if_not_exists(user_info.json(),db)
     access_token_expires = timedelta(minutes=jwt_config.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
@@ -80,5 +80,5 @@ async def auth_google(code: str,db:AsyncSession=Depends(get_db))->Token:
 
 @router.get("/me")
 async def get_user(current_user=Depends(get_current_google_user)):
-    current_user = await current_user
+    current_user = current_user
     return current_user

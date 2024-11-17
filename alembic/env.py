@@ -10,12 +10,9 @@ from alembic import context
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 
-
-from app.models import user
-from app.models import team
-from app.models import player
+from app.models import player, squad, team, user,transfer
 from app.utils.config import db_config as app_config
-from app.services.database import Base
+from app.utils.database import Base
 
 config = context.config
 config.set_main_option("sqlalchemy.url",app_config.DB_CONFIG)

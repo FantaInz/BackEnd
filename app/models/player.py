@@ -1,6 +1,7 @@
-from sqlalchemy import Column, String, select, Integer, ForeignKey,Numeric,ARRAY
+from sqlalchemy import Column, String, Integer, ForeignKey, ARRAY
+from sqlalchemy.dialects.mysql import DECIMAL
 from sqlalchemy.ext.mutable import MutableList
-from app.services.database import Base
+from app.utils.database import Base
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.testing.schema import mapped_column
 from decimal import Decimal
@@ -11,10 +12,10 @@ class Player(Base):
     id:Mapped[int]= mapped_column(Integer,primary_key=True, autoincrement=True,nullable=False)
     name:str=Column(String,nullable=False)
     team_id:Mapped[int]=mapped_column(ForeignKey('teams.id'))
-    team:Mapped["Team"]=relationship()
-    position:str=Column(String,nullable=False)
+    team:Mapped["Team"]=relationship(lazy="selectin")
+    position:int=Column(Integer,nullable=False)
     price:int=Column(Integer,nullable=False)
-    expectedPoints:list[int] = Column(MutableList.as_mutable(ARRAY(Integer)),nullable=False)
+    expectedPoints:list[Decimal] = Column(MutableList.as_mutable(ARRAY(DECIMAL(4,2))),nullable=False)
     points:list[int] = Column(MutableList.as_mutable(ARRAY(Integer)),nullable=False)
     availability:int=Column(Integer,nullable=False)
 

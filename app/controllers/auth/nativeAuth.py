@@ -4,12 +4,12 @@ from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidTokenError
 
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 import jwt
 from typing import Annotated
 
 from app.controllers.auth.common import Token,CREDENTIALS_EXCEPTION,create_access_token,authenticate_user
-from app.services.database import get_db
+from app.utils.database import get_db
 from app.repositories import userRepository
 from app.utils.config import jwt_config
 from app.models.user import User
@@ -20,7 +20,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 n_oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
-async def get_current_native_user(token: Annotated[str, Depends(n_oauth2_scheme)],db: AsyncSession = Depends(get_db)):
+def get_current_native_user(token: Annotated[str, Depends(n_oauth2_scheme)],db: AsyncSession = Depends(get_db)):
     try:
         payload = jwt.decode(token, jwt_config.SECRET_KEY, algorithms=[jwt_config.ALGORITHM])
         username: str = payload.get("sub")
@@ -29,17 +29,17 @@ async def get_current_native_user(token: Annotated[str, Depends(n_oauth2_scheme)
 
     except InvalidTokenError:
         raise CREDENTIALS_EXCEPTION
-    user = await userRepository.get_user_by_username(username,db)
+    user = userRepository.get_user_by_username(username,db)
     if user is None:
         raise CREDENTIALS_EXCEPTION
     return user
 
 
 @router.post("/login")
-async def login_for_access_token(
+def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],db: AsyncSession = Depends(get_db)
 ) -> Token:
-    user = await authenticate_user(db, form_data.username, form_data.password)
+    user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -55,8 +55,8 @@ async def login_for_access_token(
 
 
 @router.get("/me")
-async def read_users_me(
+def read_users_me(
     current_user: Annotated[User, Depends(get_current_native_user)],
 ):
-    current_user=await current_user
+    current_user=current_user
     return current_user

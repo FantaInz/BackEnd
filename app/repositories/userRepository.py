@@ -1,21 +1,21 @@
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from sqlalchemy import select
 from app.views.user import UserSchemaCreate
 from app.models.user import User
 from app.utils.passwords import get_password_hash
 
-async def create_user(user:UserSchemaCreate,db:AsyncSession):
+def create_user(user:UserSchemaCreate,db:Session):
     if user.password is not None:
         user.password=get_password_hash(user.password)
-    transaction=User(**user.dict())
+    transaction=User(**user.model_dump())
     db.add(transaction)
-    await db.commit()
-    await db.refresh(transaction)
+    db.commit()
+    db.refresh(transaction)
     return transaction
 
-async def get_user_by_username(username:str,db:AsyncSession):
+def get_user_by_username(username:str,db:Session):
     statement = select(User).where(User.username == username)
-    result = await db.execute(statement)
+    result =db.execute(statement)
     user:User =result.scalar()
     print(user)
     return user

@@ -16,8 +16,8 @@ CREDENTIALS_EXCEPTION = HTTPException(
     headers={'WWW-Authenticate': 'Bearer'},
 )
 
-async def authenticate_user(db, username: str, password: str):
-    user = await userRepository.get_user_by_username(username,db)
+def authenticate_user(db, username: str, password: str):
+    user =  userRepository.get_user_by_username(username,db)
     if not user:
         return False
     if not verify_password(password, user.password):
@@ -41,7 +41,7 @@ from fastapi.params import Depends
 from fastapi import HTTPException,status
 
 
-async def get_current_user(google_user: Annotated[User, Depends(get_current_google_user)],
+def get_current_user(google_user: Annotated[User, Depends(get_current_google_user)],
                            current_user: Annotated[User, Depends(get_current_native_user)]):
     if not(google_user or current_user):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="login required")

@@ -1,7 +1,33 @@
+import decimal
+from app.views.team import TeamSchema
 from pydantic import BaseModel
+from decimal import Decimal
+from app.models.player import Player
 
-
-class playerSchema(BaseModel):
-    id: int
-    name: str
-    age: int
+position_dict={
+    1:"Goalkeeper",
+    2:"Defender",
+    3:"Midfielder",
+    4:"Forward"
+}
+class PlayerSchema(BaseModel):
+    id: int|None =None
+    name: str|None =None
+    position: str|None =None
+    price : int|None =None
+    team :TeamSchema|None =None
+    points: list[int]|None =None
+    expectedPoints: list[Decimal]|None =None
+    availability: int|None =None
+    @classmethod
+    def from_model(cls,model:Player)->"PlayerSchema":
+        return PlayerSchema(
+            id=model.id,
+            name=model.name,
+            position=position_dict[model.position],
+            price=model.price,
+            points=model.points,
+            expectedPoints=model.expectedPoints,
+            availability=model.availability,
+            team=TeamSchema.from_model(model.team)
+        )
