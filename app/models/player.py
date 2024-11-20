@@ -18,4 +18,14 @@ class Player(Base):
     expectedPoints:list[Decimal] = Column(MutableList.as_mutable(ARRAY(DECIMAL(4,2))),nullable=False)
     points:list[int] = Column(MutableList.as_mutable(ARRAY(Integer)),nullable=False)
     availability:int=Column(Integer,nullable=False)
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "team_id": self.team_id,
+            "position": self.position,
+            "price": self.price,
+            "expectedPoints": self.expectedPoints,
+            "availability": self.availability
+        }
 

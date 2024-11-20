@@ -8,7 +8,8 @@ from rich.pretty import pprint
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from sqlalchemy.sql.base import elements
+from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.orm.base import state_str
 
 
 def get_players(URL):
@@ -43,7 +44,10 @@ def get_players(URL):
     with Session(engine) as session:
          with session.begin():
               for player in playersList:
-                  session.add(player)
+                  del player.__dict__['_sa_instance_state']
+                  stmt=insert(Player).values(player.__dict__)
+                  stmt.on_conflict_do_update(index_elements=["id"],set_=player.__dict__)
+                  session.execute(stmt)
               session.commit()
     engine.dispose()
 

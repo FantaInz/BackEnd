@@ -15,11 +15,6 @@ lifespan = None
 
 sessionmanager.init(db_config.DB_CONFIG)
 
-def lifespan(app: FastAPI):
-    yield
-    if sessionmanager._engine is not None:
-        sessionmanager.close()
-
 server = FastAPI(title="FastAPI server", lifespan=lifespan)
 ALLOWED_HOSTS = ["*"]
 server.add_middleware(

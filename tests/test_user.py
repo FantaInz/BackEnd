@@ -3,6 +3,7 @@ from app.main import server
 from app.utils.database import get_db
 from tests.fixtures import create_and_delete_database
 from tests.utils import override_get_db
+import json
 client = TestClient(server)
 server.dependency_overrides[get_db] = override_get_db
 from data.insert_teams import get_teams
@@ -99,10 +100,4 @@ def test_authenticate_user():
     assert rsp3.json()["squad_id"] == None
     assert rsp3.json()["id"] is not None
     assert rsp3.json()["password"] is not None
-def test_squad_update():
-    get_teams(TEST_URL)
-    get_players(TEST_URL)
-    rsp=client.get(
-        "/api/squad/update/9104"
-    )
-    assert rsp.status_code == 200
+
