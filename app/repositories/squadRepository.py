@@ -5,10 +5,13 @@ import requests
 from app.models.squad import Squad,Player
 from fastapi import HTTPException
 from app.utils.squadUpdate import get_transfers_info,calculate_free_transfers, update_transfers
+from app.models.user import User
 baseUrl="https://fantasy.premierleague.com/api/"
 
 
-def update_or_create_squad(squad_id, db: Session):
+def update_or_create_squad(squad_id,user:User, db: Session):
+    if user.squad_id is not None and user.squad_id!=squad_id:
+        raise HTTPException(status_code=403, detail="User does not have access to this squad")
     result = db.execute(select(Squad).filter(Squad.id == squad_id))
     squad = result.scalars().first()
     if squad is None:
@@ -48,10 +51,11 @@ def update_or_create_squad(squad_id, db: Session):
     infoList=get_transfers_info(squad_id,gameweek)
     squad.freeTransfers=calculate_free_transfers(infoList)
     print(squad.id)
-
+    user.squad_id=squad.id
     if doesnt_exist:
         db.add(squad)
     db.commit()
+    db.refresh(user)
     db.refresh(squad)
     return squad
 

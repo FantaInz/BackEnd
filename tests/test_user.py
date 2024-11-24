@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from app.main import server
 from app.utils.database import get_db
-from tests.fixtures import create_and_delete_database
+from tests.fixtures import create_and_delete_database,drop_users
 from tests.utils import override_get_db
 import json
 client = TestClient(server)
@@ -10,7 +10,8 @@ from data.insert_teams import get_teams
 from data.insert_players import get_players
 from tests.conftest import TEST_URL
 
-def  test_create_user():
+def  test_create_user(drop_users):
+
     response =  client.post(
         "/api/user/register",
         json={"username":"test","password":"test","email":"test@example.com"}
@@ -23,7 +24,7 @@ def  test_create_user():
 
 
 
-def test_user_already_exists():
+def test_user_already_exists(drop_users):
      rsp=client.post(
         "/api/user/register",
         json={"username":"test","password":"test","email":"test@example.com"}
@@ -37,7 +38,8 @@ def test_user_already_exists():
      assert response.status_code == 409
      assert response.json()["detail"] == "User with this username or email already exists"
 
-def test_user_login():
+def test_user_login(drop_users):
+
     rsp1 = client.post(
         "/api/user/register",
         json={"username": "test", "password": "test", "email": "test@example.com"}
@@ -51,7 +53,8 @@ def test_user_login():
     assert rsp2.json()["access_token"] is not None
     assert rsp2.json()["token_type"] == "bearer"
 
-def test_bad_credencials():
+def test_bad_credencials(drop_users):
+
     rsp1 = client.post(
         "/api/user/register",
         json={"username": "test", "password": "test", "email": "test@example.com"}
@@ -71,7 +74,8 @@ def test_bad_credencials():
     assert rsp3.status_code == 401
     assert rsp3.json()["detail"] == "Incorrect username or password"
 
-def test_no_user_login():
+def test_no_user_login(drop_users):
+
     rsp = client.post(
         "/api/auth/login",
         data={"username": "notExisiting", "password": "notExisiting"}
@@ -79,7 +83,8 @@ def test_no_user_login():
     assert rsp.status_code == 401
     assert rsp.json()["detail"] == "Incorrect username or password"
 
-def test_authenticate_user():
+def test_authenticate_user(drop_users):
+
     rsp1 = client.post(
         "/api/user/register",
         json={"username": "test", "password": "test", "email": "test@example.com"}

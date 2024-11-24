@@ -46,7 +46,7 @@ def get_players(URL):
               for player in playersList:
                   del player.__dict__['_sa_instance_state']
                   stmt=insert(Player).values(player.__dict__)
-                  stmt.on_conflict_do_update(index_elements=["id"],set_=player.__dict__)
+                  stmt=stmt.on_conflict_do_update(index_elements=["id"],set_=player.__dict__)
                   session.execute(stmt)
               session.commit()
     engine.dispose()

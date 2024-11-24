@@ -28,4 +28,3 @@ def get_teams(URL):
                 session.execute(stmt)
             session.commit()
     engine.dispose()
-get_teams(db_config.DB_CONFIG)

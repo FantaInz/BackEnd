@@ -8,8 +8,7 @@ from tests.utils import override_get_db
 import json
 client = TestClient(server)
 server.dependency_overrides[get_db] = override_get_db
-from data.insert_teams import get_teams
-from data.insert_players import get_players
+
 from tests.conftest import TEST_URL
 from app.utils.squadUpdate import create_transfer_from_json, update_transfers,calculate_free_transfers
 
@@ -167,8 +166,7 @@ def test_calculate_free_transfers_max():
     assert freeTransfers==5
 
 def a_test_squad_update():
-    get_teams(TEST_URL)
-    get_players(TEST_URL)
+
     response = client.get(f"/api/squad/update/1")
     assert response.status_code == 200
     assert response.json()["id"]==1
