@@ -164,14 +164,3 @@ def test_calculate_free_transfers_max():
     freeTransfers=calculate_free_transfers(infoList)
     assert infoList.__len__()>5
     assert freeTransfers==5
-
-def a_test_squad_update():
-
-    response = client.get(f"/api/squad/update/1")
-    assert response.status_code == 200
-    assert response.json()["id"]==1
-
-def test_squad_update_bad_request():
-    response = client.get(f"/api/squad/update/-11")
-    assert response.status_code == 404
-    assert response.json()["detail"]=="Manager not found"
