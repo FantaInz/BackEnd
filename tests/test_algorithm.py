@@ -65,7 +65,7 @@ def test_alg_increase_points():
     df=create_players_dataframe(players,squad)
     current_squad=encode_squad(16,squad)
 
-    solver=Solver(df,current_squad,16,100,1,1)
+    solver=Solver(df,current_squad,16,100,1,1,0)
     status, transfer_in, transfer_out, captain, subs, team, squad, free= solver.solve()
 
     assert status==1
@@ -82,7 +82,7 @@ def test_alg_decrease_points():
     df=create_players_dataframe(players,squad)
     current_squad=encode_squad(16,squad)
 
-    solver=Solver(df,current_squad,16,100,1,1)
+    solver=Solver(df,current_squad,16,100,1,1,0)
     status, transfer_in, transfer_out, captain, subs, team, squad, free= solver.solve()
 
     assert status==1
@@ -104,7 +104,7 @@ def test_alg_keep_pentalty():
     df=create_players_dataframe(players,squad)
     current_squad=encode_squad(17,squad)
 
-    solver=Solver(df,current_squad,17,100,1,1)
+    solver=Solver(df,current_squad,17,100,1,1,0)
     status, transfer_in, transfer_out, captain, subs, team, squad, free= solver.solve()
 
     assert status==1
@@ -122,7 +122,7 @@ def test_alg_wont_go_over_budget():
     df = create_players_dataframe(players, squad)
     current_squad = encode_squad(16, squad)
 
-    solver = Solver(df, current_squad, 16, 5, 1, 1)
+    solver = Solver(df, current_squad, 16, 5, 1, 1,0)
     status, transfer_in, transfer_out, captain, subs, team, squad, free = solver.solve()
 
     for i,el in enumerate(transfer_out[0]):
@@ -149,7 +149,7 @@ def test_alg_max_over_many_weeks():
     df = create_players_dataframe(players, squad)
     current_squad = encode_squad(18, squad)
 
-    solver = Solver(df, current_squad, 18, 10, 1, 2)
+    solver = Solver(df, current_squad, 18, 10, 1, 2,0)
     status, transfer_in, transfer_out, captain, subs, team, squad, free = solver.solve()
 
     assert status == 1
@@ -181,7 +181,7 @@ def test_alg_keeps_team_constrain():
 
     current_squad = encode_squad(19, squadD)
 
-    solver = Solver(df, current_squad, 19, 10, 4, 1)
+    solver = Solver(df, current_squad, 19, 10, 4, 1,0)
     status, transfer_in, transfer_out, captain, subs, team, squad, free = solver.solve()
     teams_ids=df.team_id.tolist()
     positions=df.position.tolist()
@@ -212,7 +212,7 @@ def test_alg_keeps_position_constrain():
     df = create_players_dataframe(players, squadD)
     current_squad = encode_squad(18, squadD)
 
-    solver = Solver(df, current_squad, 18, 10, 3, 1)
+    solver = Solver(df, current_squad, 18, 10, 3, 1,0)
     status, transfer_in, transfer_out, captain, subs, team, squad, free = solver.solve()
 
     assert status == 1
@@ -229,7 +229,7 @@ def test_alg_must_have_will_join():
     df = create_players_dataframe(players, squadD)
     current_squad = encode_squad(16, squadD)
 
-    solver = Solver(df, current_squad, 16, 10, 1, 1)
+    solver = Solver(df, current_squad, 16, 10, 1, 1,0)
     status, transfer_in, transfer_out, captain, subs, team, squad, free = solver.solve([15],)
 
     assert status == 1
@@ -246,7 +246,7 @@ def test_alg_cat_have_wont_join():
     df = create_players_dataframe(players, squadD)
     current_squad = encode_squad(16, squadD)
 
-    solver = Solver(df, current_squad, 16, 10, 1, 1)
+    solver = Solver(df, current_squad, 16, 10, 1, 1,0)
     status, transfer_in, transfer_out, captain, subs, team, squad, free = solver.solve([],[15])
 
     assert status == 1
@@ -263,7 +263,7 @@ def test_alg_unobtainable_constrain_will_break_solution():
     df = create_players_dataframe(players, squadD)
     current_squad = encode_squad(16, squadD)
 
-    solver = Solver(df, current_squad, 16, 10, 1, 1)
+    solver = Solver(df, current_squad, 16, 10, 1, 1,0)
     status, transfer_in, transfer_out, captain, subs, team, squad, free = solver.solve([15],[])
 
     assert status == -1

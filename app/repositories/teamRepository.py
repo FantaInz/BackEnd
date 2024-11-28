@@ -9,7 +9,6 @@ def get_team_by_id(team_id: int, db: Session):
     return result.scalars().first()
 
 def get_teams( db: Session):
-    print("get_teams")
     result = db.execute(select(Team))
     return result.scalars().all()
 

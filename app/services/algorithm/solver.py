@@ -6,7 +6,7 @@ import sys
 from app.services.algorithm.utils import get_decision_array
 
 class Solver:
-    def __init__(self,df,current_squad,playerNum,budget,freeTransfers,weeks):
+    def __init__(self,df,current_squad,playerNum,budget,freeTransfers,weeks,currentWeek):
         self.df=df
         self.current_squad=current_squad
         self.playerNum=playerNum
@@ -16,6 +16,7 @@ class Solver:
         self.teams_ids = df.team_id.tolist()
         self.pl_teams = df.team_id.unique()
         self.weeks=weeks
+        self.currentWeek=currentWeek
 
     def create_decision_arrays(self):
         free_in = get_decision_array("free_in", self.playerNum,self.weeks)
@@ -89,7 +90,7 @@ class Solver:
         return np.array(
             pd.DataFrame(self.df.expectedPoints.values.tolist(), index=self.df.id)
             .apply(pd.to_numeric, downcast="float").iloc[:,
-            id].tolist())
+            id+self.currentWeek].tolist())
 
     def add_objective(self, captain, team, paid_in,subs,expected_points):
         penalty = sum(paid_in) * 4

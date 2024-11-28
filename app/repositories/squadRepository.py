@@ -50,7 +50,6 @@ def update_or_create_squad(squad_id,user:User, db: Session):
 
     infoList=get_transfers_info(squad_id,gameweek)
     squad.freeTransfers=calculate_free_transfers(infoList)
-    print(squad.id)
     user.squad_id=squad.id
     if doesnt_exist:
         db.add(squad)

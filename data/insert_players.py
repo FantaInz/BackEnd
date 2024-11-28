@@ -28,25 +28,26 @@ def get_players(URL):
         p.team_id=elem['team']
         p.price=int(elem['now_cost'])
         precision = Decimal('0.01')
-        p.expectedPoints=[Decimal(elem['ep_this']).quantize(precision),Decimal(elem['ep_next']).quantize(precision)]
         p.availability=elem["chance_of_playing_this_round"] if elem["chance_of_playing_this_round"] is not None else 0
         historyUrl=base_url+"element-summary/"+str(p.id)+"/"
         resp=requests.get(historyUrl).json()
+        limit=int(resp["fixtures"][0]["event"])-1
         points=[]
         for h in resp['history']:
             points.append(h['total_points'])
-        while points.__len__()<11:
+        while points.__len__()<limit:
             points.insert(0,-999)
         p.points=points
         playersList.append(p)
-        if len(points)!=11:
-            print(p.__dict__)
+        p.expectedPoints=[0 for i in range(limit+4)]
     with Session(engine) as session:
          with session.begin():
               for player in playersList:
-                  del player.__dict__['_sa_instance_state']
+                  player_dir=player.__dict__
+                  del player_dir['_sa_instance_state']
                   stmt=insert(Player).values(player.__dict__)
-                  stmt=stmt.on_conflict_do_update(index_elements=["id"],set_=player.__dict__)
+                  del player_dir["expectedPoints"]
+                  stmt=stmt.on_conflict_do_update(index_elements=["id"],set_=player_dir)
                   session.execute(stmt)
               session.commit()
     engine.dispose()

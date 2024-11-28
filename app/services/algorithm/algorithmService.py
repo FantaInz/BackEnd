@@ -26,15 +26,17 @@ def optimize_squad(constrains:OptimizerConstrains,db:Session,user:User):
     df=create_players_dataframe(players,squad_obj)
     playersNum=len(players)
     current_squad=encode_squad(playersNum,squad_obj)
-    solver=Solver(df,current_squad,len(players),squad_obj.transferBudget,squad_obj.freeTransfers,constrains.weeks)
+    solver=Solver(df,current_squad,len(players),squad_obj.transferBudget,squad_obj.freeTransfers,constrains.weeks,
+                  squad_obj.lastUpdate)
     status, transfer_in, transfer_out, captain, subs, team, squad, free = (
         solver.solve(constrains.must_have,constrains.cant_have))
     if status!=1:
         raise HTTPException(status_code=500,detail="Optimization failed, probably due to unfeasible constraints")
-    return get_planSchema(db,squad_obj,team,transfer_in,transfer_out,captain,subs,constrains.weeks,playersNum)
+    return get_planSchema(db,squad_obj,team,transfer_in,transfer_out,captain,subs,constrains.weeks,playersNum,
+                          squad_obj.lastUpdate)
 
 
-def get_planSchema(db,squad_obj,team,transfer_in,transfer_out,captain,subs,weeks,playerNum):
+def get_planSchema(db,squad_obj,team,transfer_in,transfer_out,captain,subs,weeks,playerNum,currentWeek):
     plan=PlanSchema()
     plan.start_gameweek=squad_obj.lastUpdate+1
     plan.end_gameweek=squad_obj.lastUpdate+weeks
@@ -54,8 +56,8 @@ def get_planSchema(db,squad_obj,team,transfer_in,transfer_out,captain,subs,weeks
         fcaptain = decode_decision_array(subs[week], playerNum)
         f_captain_obj = db.execute(select(Player).filter(Player.id.in_(fcaptain))).scalars().first()
         future_squad.captain = PlayerSchema.from_model(f_captain_obj)
-        future_squad.estimated_points+= sum([player.expectedPoints[week] for player in f_player_obj])
-        future_squad.estimated_points+= f_captain_obj.expectedPoints[week]
+        future_squad.estimated_points+= sum([player.expectedPoints[week+currentWeek] for player in f_player_obj])
+        future_squad.estimated_points+= f_captain_obj.expectedPoints[week+currentWeek]
 
 
         future_transfer=FutureTransferSchema()
