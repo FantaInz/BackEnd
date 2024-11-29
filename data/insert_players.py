@@ -1,15 +1,14 @@
-from alembic.command import history
+
 from app.models.player import Player
-import requests,json
-from app.utils.config import db_config
-import asyncio
+import requests
+
 from decimal import Decimal
-from rich.pretty import pprint
+
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.orm.base import state_str
+
 
 
 def get_players(URL):

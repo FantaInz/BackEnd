@@ -33,8 +33,6 @@ def create_and_delete_database():
     yield
 
     close_all_sessions()
-
-    drop_database(TEST_URL)
 @pytest.fixture(scope="function", autouse=False)
 def drop_users():
     engine = create_engine(TEST_URL)

@@ -1,3 +1,4 @@
+from app.views.futureSquad import FutureSquadSchema
 from app.views.plan import PlanSchema
 from app.views.player import PlayerSchema
 from fastapi import APIRouter,Depends
@@ -22,4 +23,8 @@ def update_squad(squad_id: int, db: Session = Depends(get_db),user=Depends(get_c
 @router.post("/optimize")
 def optimize_squad(constrains:OptimizerConstrains,db: Session = Depends(get_db),user=Depends(get_current_user))->PlanSchema:
     return algorithmService.optimize_squad(constrains,db,user)
+
+@router.get("/dream_team/{week}")
+def get_dream_team(week:int,db: Session = Depends(get_db))->FutureSquadSchema:
+    return algorithmService.get_dream_team(db,week)
 

@@ -27,3 +27,4 @@ def delete_plan(plan_id: int, db: Session = Depends(get_db),user=Depends(get_cur
 def get_plan(plan_id: int, db: Session = Depends(get_db),user=Depends(get_current_user))->PlanSchema:
     plan_mod=planRepository.get_plan_by_id(db,plan_id,user)
     return PlanSchema.from_model(plan_mod)
+

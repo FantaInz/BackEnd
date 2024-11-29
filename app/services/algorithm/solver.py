@@ -18,14 +18,16 @@ class Solver:
         self.weeks=weeks
         self.currentWeek=currentWeek
 
-    def create_decision_arrays(self):
-        free_in = get_decision_array("free_in", self.playerNum,self.weeks)
-        paid_in = get_decision_array("paid_in", self.playerNum,self.weeks)
-        transfer_out = get_decision_array("transfer_out", self.playerNum,self.weeks)
+    def create_transfer_decision_arrays(self):
+        free_in = get_decision_array("free_in", self.playerNum, self.weeks)
+        paid_in = get_decision_array("paid_in", self.playerNum, self.weeks)
+        transfer_out = get_decision_array("transfer_out", self.playerNum, self.weeks)
         transfer_in = free_in + paid_in
+        return free_in, paid_in, transfer_out, transfer_in
+    def create_team_decision_arrays(self):
         captain = get_decision_array("captain", self.playerNum,self.weeks)
         subs = get_decision_array("subs", self.playerNum,self.weeks)
-        return free_in, paid_in, transfer_out, transfer_in, captain, subs
+        return  captain, subs
 
     def add_transfer_constrains(self,model,free_in, transfer_out, transfer_in, budget_now,week):
         in_cost = sum(transfer_in * self.df.buy_price.tolist())
@@ -86,11 +88,11 @@ class Solver:
             model += (team[i] + subs[i]) <= 1
 
 
-    def extract_expected_points(self,id):
+    def extract_expected_points(self,week):
         return np.array(
             pd.DataFrame(self.df.expectedPoints.values.tolist(), index=self.df.id)
             .apply(pd.to_numeric, downcast="float").iloc[:,
-            id+self.currentWeek].tolist())
+            week].tolist())
 
     def add_objective(self, captain, team, paid_in,subs,expected_points):
         penalty = sum(paid_in) * 4
@@ -113,8 +115,9 @@ class Solver:
     def solve(self,must_have=[],cant_have=[]):
         model=pulp.LpProblem("FPL", pulp.LpMaximize)
         cum_obj=0
-        (free_in_all,paid_in_all,transfer_out_all,
-         transfer_in_all, captain_all, subs_all)=self.create_decision_arrays()
+        (free_in_all, paid_in_all, transfer_out_all,
+         transfer_in_all)=self.create_transfer_decision_arrays()
+        (captain_all, subs_all)=self.create_team_decision_arrays()
         current_squad=self.current_squad
         budget=self.budget
         team_all=[]
@@ -137,7 +140,7 @@ class Solver:
             team_all.append(team)
             self.add_custom_constrains(model,squad,must_have,cant_have)
             new_budget=self.add_transfer_constrains(model,free_in,transfer_out,transfer_in,budget,week)
-            expected_points = self.extract_expected_points(week)
+            expected_points = self.extract_expected_points(week+self.currentWeek)
             self.add_positions_and_pl_teams_constrains(model,squad,subs,team,captain,week)
             cumFreeTransfers = self.add_free_transfer_constrains(model, free_in, cumFreeTransfers, week)
             cum_obj+=self.add_objective(captain, team, paid_in,subs,expected_points)
@@ -148,4 +151,25 @@ class Solver:
         model+=cum_obj,"Objective"
         status=model.solve(pulp.PULP_CBC_CMD())
         return status,transfer_in_all,transfer_out_all,captain_all,subs_all,team_all,squad_all,free_in_all
+
+    def add_team_cost_constrain(self,model,squad,subs):
+        model+=sum(squad * self.df.buy_price) <= self.budget
+
+    def get_best_squad(self,week):
+        model=pulp.LpProblem("FPL", pulp.LpMaximize)
+        (captain_all, subs_all)=self.create_team_decision_arrays()
+        squad_all=get_decision_array("squad", self.playerNum,1)
+        captain=captain_all[0]
+        subs=subs_all[0]
+        squad=squad_all[0]
+        team=squad-subs
+        self.add_positions_and_pl_teams_constrains(model,squad,subs,team,captain,week)
+        self.add_team_cost_constrain(model,squad,subs)
+        expected_points = self.extract_expected_points(week-1)
+        obj=self.add_objective(captain, team, [],subs,expected_points)
+        model+=obj,"Objective"
+        status=model.solve()
+        return status,squad,team,captain,subs
+
+
 
