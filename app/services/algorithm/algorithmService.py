@@ -68,11 +68,11 @@ def decode_future_squad(db,team,captain,subs,playerNum,week,currentWeek):
 def decode_future_transfer(db,transfer_in,transfer_out,playerNum,week,currentWeek):
     future_transfer = FutureTransferSchema()
     future_transfer.gameweek = currentWeek + week + 1
-    f_transfer_in = decode_decision_array(transfer_in[week], playerNum)
+    f_transfer_in = decode_decision_array(transfer_in, playerNum)
     f_transfer_in_obj = db.execute(select(Player).filter(Player.id.in_(f_transfer_in))).scalars().all()
     future_transfer.transfer_in = [PlayerSchema.from_model(tran_in) for tran_in in f_transfer_in_obj]
 
-    f_transfer_out = decode_decision_array(transfer_out[week], playerNum)
+    f_transfer_out = decode_decision_array(transfer_out, playerNum)
     f_transfer_out_obj = db.execute(select(Player).filter(Player.id.in_(f_transfer_out))).scalars().all()
     future_transfer.transfer_out = [PlayerSchema.from_model(tran_out) for tran_out in f_transfer_out_obj]
     return future_transfer
