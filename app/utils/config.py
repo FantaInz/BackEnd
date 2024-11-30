@@ -20,7 +20,7 @@ class Jwt_config:
         __JWT_PARAMS=json.load(f)
         SECRET_KEY =os.getenv("SECRET_KEY",__JWT_PARAMS.get("SECRET_KEY"))
         ALGORITHM = os.getenv("ALGORITHM",__JWT_PARAMS.get("ALGORITHM"))
-        ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES",__JWT_PARAMS.get("ACCESS_TOKEN_EXPIRE_MINUTES"))
+        ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES",__JWT_PARAMS.get("ACCESS_TOKEN_EXPIRE_MINUTES")))
 jwt_config = Jwt_config
 
 
