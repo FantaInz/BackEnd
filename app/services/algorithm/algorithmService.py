@@ -21,7 +21,10 @@ def get_dream_team(db:Session,week):
     df = create_players_dataframe(players, Squad())
     playersNum = len(players)
     solver=Solver(df,None,playersNum,1000,None,1,None)
-    status,squad,team,captain,subs=solver.get_best_squad(week)
+    try:
+        status,squad,team,captain,subs=solver.get_best_squad(week)
+    except IndexError:
+        raise HTTPException(status_code=400,detail="data for this week is not available")
     if status!=1:
         raise HTTPException(status_code=500,detail="Optimization failed")
     return decode_future_squad(db,team,captain,subs,playersNum,-1,week)
