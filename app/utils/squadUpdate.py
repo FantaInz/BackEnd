@@ -8,6 +8,8 @@ def get_transfers_info(squad_id,gameWeek):
     for i in range(1,gameWeek):
         infoElem=dict()
         response=requests.get(baseUrl+"entry/"+str(squad_id)+"/event/"+str(i)+"/picks/").json()
+        if response.get("detail")=="Not found.":
+            continue
         infoElem["active_chip"]=response["active_chip"]
         infoElem["event_transfers"]=response["entry_history"]["event_transfers"]
         infoElem["event_transfers_cost"]=response["entry_history"]["event_transfers_cost"]

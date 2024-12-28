@@ -20,4 +20,5 @@ def create_user(user: UserSchemaCreate, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=409,detail="User with this username or email already exists")
     if user.id is None:
         raise HTTPException(status_code=500,detail="couldn't register user")
+    user.password=None
     return UserSchema(**user.__dict__)
