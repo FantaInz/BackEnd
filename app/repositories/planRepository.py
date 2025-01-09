@@ -37,7 +37,7 @@ def save_plan(db: Session, plan: PlanSchema,user:User):
             gameweek=future_squad.gameweek,
             estimatedPoints=future_squad.estimated_points
         )
-        for player in future_squad.team:
+        for player in future_squad.players:
             player_model=db.execute(select(Player).filter(Player.id==player.id)).scalars().first()
             future_squad_model.team.append(player_model)
         for player in future_squad.subs:

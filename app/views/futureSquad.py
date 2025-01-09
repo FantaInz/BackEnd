@@ -17,7 +17,7 @@ class FutureSquadSchema(BaseModel):
             plan_id=model.plan_id,
             gameweek=model.gameweek,
             estimated_points=model.estimatedPoints,
-            players=[PlayerSchema.from_model(player) for player in model.team],
+            team=[PlayerSchema.from_model(player) for player in model.team],
             subs=[PlayerSchema.from_model(player) for player in model.subs],
             captain=PlayerSchema.from_model(model.captain)
         )
