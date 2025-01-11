@@ -31,12 +31,22 @@ class PlayerSchema(BaseModel):
             team=TeamSchema.from_model(model.team)
         )
 
-
+class SortPoints(BaseModel):
+    gameweek:int
+    order:str
+    expected:bool
 class PlayerSearch(BaseModel):
     teams: list[int]|None =None
     positions: list[int]|None =None
     name: str|None =None
     minPrice: int|None =None
     maxPrice: int|None =None
+    SortPoints: SortPoints|None
+    sortPosition: str|None=None
+    sortTeam: str|None =None
+    sortName:str|None=None
     pageSize: int=Field(10,ge=1)
     pageNumber: int=Field(0,ge=0)
+class SearchResult(BaseModel):
+    players: list[PlayerSchema]=[]
+    totalPages: int|None=None

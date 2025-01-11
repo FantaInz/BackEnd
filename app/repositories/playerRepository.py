@@ -24,8 +24,24 @@ def search_players(db: Session, search):
         stmt=stmt.filter(Player.price>=search.minPrice)
     if search.maxPrice:
         stmt=stmt.filter(Player.price<=search.maxPrice)
-    result = db.execute(stmt.offset(search.pageNumber*search.pageSize).limit(search.pageSize))
-    return result.scalars().all()
+
+    if search.SortPoints:
+        if search.SortPoints.expected:
+            stmt=stmt.order_by(Player.expectedPoints[search.SortPoints.gameweek].desc() if search.SortPoints.order=="desc" else Player.expectedPoints[search.SortPoints.gameweek].asc())
+        else:
+            stmt=stmt.order_by(Player.points[search.SortPoints.gameweek].desc() if search.SortPoints.order=="desc" else Player.points[search.SortPoints.gameweek].asc())
+    if search.sortTeam:
+        stmt=stmt.order_by(Player.team_id.desc() if search.sortTeam=="desc" else Player.team_id.asc())
+
+    if search.sortPosition:
+        stmt=stmt.order_by(Player.position.desc() if search.sortPosition=="desc" else Player.position.asc())
+
+    if search.sortName:
+        stmt=stmt.order_by(Player.name.desc() if search.sortName=="desc" else Player.name.asc())
+    result = db.execute(stmt)
+    players=result.scalars().all()
+    cnt=len(players)
+    return players[search.pageNumber*search.pageSize:(search.pageNumber+1)*search.pageSize],cnt
 
 def get_all_players( db: Session):
     result = db.execute(select(Player))
