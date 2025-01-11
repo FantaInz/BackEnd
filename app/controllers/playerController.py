@@ -29,3 +29,9 @@ def get_player_count(
     user=Depends(get_current_user)
 ):
     return len(playerRepository.get_all_players(db))
+@router.get(("/maxWeek"),response_model=int)
+def get_max_week(
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user)
+):
+    return playerRepository.get_max_week(db)

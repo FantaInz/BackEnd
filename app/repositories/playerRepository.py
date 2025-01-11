@@ -27,9 +27,9 @@ def search_players(db: Session, search):
 
     if search.SortPoints:
         if search.SortPoints.expected:
-            stmt=stmt.order_by(Player.expectedPoints[search.SortPoints.gameweek].desc() if search.SortPoints.order=="desc" else Player.expectedPoints[search.SortPoints.gameweek].asc())
+            stmt=stmt.order_by(Player.expectedPoints[search.SortPoints.gameweek-1].desc() if search.SortPoints.order=="desc" else Player.expectedPoints[search.SortPoints.gameweek].asc())
         else:
-            stmt=stmt.order_by(Player.points[search.SortPoints.gameweek].desc() if search.SortPoints.order=="desc" else Player.points[search.SortPoints.gameweek].asc())
+            stmt=stmt.order_by(Player.points[search.SortPoints.gameweek-1].desc() if search.SortPoints.order=="desc" else Player.points[search.SortPoints.gameweek].asc())
     if search.sortTeam:
         stmt=stmt.order_by(Player.team_id.desc() if search.sortTeam=="desc" else Player.team_id.asc())
 
@@ -46,3 +46,6 @@ def search_players(db: Session, search):
 def get_all_players( db: Session):
     result = db.execute(select(Player))
     return result.scalars().all()
+def get_max_week(db:Session):
+    result=db.execute(select(Player))
+    return len(result.scalars().first().expectedPoints)
