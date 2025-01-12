@@ -2,7 +2,7 @@ from fastapi import APIRouter,Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
-
+from app.controllers.auth.common import get_current_user
 from app.utils.database import get_db
 from app.repositories import userRepository
 from app.views.user import UserSchema,UserSchemaCreate
@@ -21,4 +21,8 @@ def create_user(user: UserSchemaCreate, db: AsyncSession = Depends(get_db)):
     if user.id is None:
         raise HTTPException(status_code=500,detail="couldn't register user")
     user.password=None
+    return UserSchema(**user.__dict__)
+
+@router.get("/get")
+def get_user(user=Depends(get_current_user))->UserSchema:
     return UserSchema(**user.__dict__)

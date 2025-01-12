@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from app.utils.config import db_config
 from app.utils.database import sessionmanager
 from fastapi.middleware.cors import CORSMiddleware
-from app.controllers.auth.common import get_current_user
+
 from fastapi.params import Depends
 import os
 
@@ -40,6 +40,3 @@ server.include_router(player_router, prefix="/api", tags=["player"])
 server.include_router(plan_router, prefix="/api", tags=["plan"])
 
 
-@server.get("/api/user")
-def get_user(user=Depends(get_current_user))->UserSchema:
-    return UserSchema(**user.dict())
