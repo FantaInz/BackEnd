@@ -34,9 +34,10 @@ def update_or_create_squad(squad_id,user:User, db: Session):
     members = squadResponse["picks"]
     squad.players = []
     for member in members:
-        player = db.execute(select(Player).filter(Player.id == member["element"]))
-        player = player.scalars().first()
-        squad.players.append(player)
+        if member["position"]!= 16:
+            player = db.execute(select(Player).filter(Player.id == member["element"]))
+            player = player.scalars().first()
+            squad.players.append(player)
 
 
     transfersResponse = requests.get(baseUrl + "entry/" + str(squad_id) + "/transfers/").json()
